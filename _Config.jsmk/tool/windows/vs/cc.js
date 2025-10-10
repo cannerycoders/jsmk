@@ -54,6 +54,7 @@ class cl extends ToolCli
 
         this.AddFlags(this.GetRole(), [
             "-c",
+            "-Fd${DSTFILE}.pdb",
             // "-fp:precise",
             "-Gd",   // specifies __cdecl calling convention for ...
             "-Gm-", // minimal rebuild disabled (for now)
@@ -137,7 +138,6 @@ class cl extends ToolCli
         case "debug":
             defs._DEBUG = null;
             flags.push(...[
-                "-Fd${DSTFILE}.pdb",
                 "-Ob0", // inline expansion
                 "-Od",  // disable optimizations
                 "-RTC1", // runtime error checking
@@ -145,19 +145,19 @@ class cl extends ToolCli
             ]);
             break;
         case "release":
-            defs.NDEBUG = null;
-            flags.push(...[
-                "-O3",
-                "-Ob2", // inline expansion
-            ]);
-            break;
         case "releasesym":
             defs.NDEBUG = null;
             flags.push(...[
                 "-O3",
-                "-Ob1", // inline expansion
-                "-Zi",  // debugging symbols
+                "-Ob2", // inline expansion
+                "-GF", // string pulling
             ]);
+            if(task.BuildVars.Deployment == "releasesym")
+            {
+                flags.push(...[
+                    "-Zi",  // debugging symbols
+                ]);
+            }
             break;
         }
 

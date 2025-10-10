@@ -527,25 +527,9 @@ class CEF extends Framework
     appendMSVFlags(cefProjState, debug)
     {
         let {ccflags} = cefProjState;
-        if(debug)
-        {
-            ccflags.push(
-                "-RTC1", // disable optimizations
-                "-Od",
-                "-Ob0"
-            );
-        }
-        else
-        {
-            ccflags.push(
-                "-O2", // max speeed
-                "-Ob2", // inline
-                "-GF", // string pooling
-            );
-        }
+        // nb optimization handled by tool
         ccflags.push(
-            "-Zi",
-            "-MP", // multiprocess, not needed since we parallelize
+            // "-MP", // multiprocess, not needed since we parallelize
             "-Gy",  // function-level linking
             "-GR-", // disable RTTI
             "-W4", // warning level
@@ -572,10 +556,7 @@ class CEF extends Framework
     appendWin32ClangFlags(cefProjState, debug)
     {
         let {ccflags} = cefProjState;
-        if(debug)
-            ccflags.push("-g"); // could add "-O0"?
-        else
-            ccflags.push("-O3");
+        // optimization handled via tool
         ccflags.push(
             "-fno-strict-aliasing", // assumptions regarding non-aliasing of objects of different types
             "-fstack-protector", // some vulnerable functions from stack-smashing (security feature)
