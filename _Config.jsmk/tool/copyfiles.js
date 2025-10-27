@@ -62,7 +62,7 @@ class CopyFiles extends Tool
                 }
                 if(config.renametarget)
                 {
-                    outfile = config.renametarget(outfile);
+                    outfile = config.renametarget(outfile, input);
                 }
                 outputs.push(outfile);
             }
