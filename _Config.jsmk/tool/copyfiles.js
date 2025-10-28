@@ -22,64 +22,72 @@ class CopyFiles extends Tool
     {
         super.ConfigureTaskSettings(task);
         let actionStage = task.GetActionStage();
-        if(config.inputs && config.installdir)
+        let rootdir;
+        if(config.installroot)
+            rootdir = task.Interpolate(config.installroot);
+        else
         {
-            let rootdir;
-            if(config.installroot)
-                rootdir = task.Interpolate(config.installroot);
-            else
+            switch(actionStage)
             {
-                switch(actionStage)
-                {
-                case "package":
-                    rootdir = task.EvaluateBuildVar("PackageDir");
-                    break;
-                case "install":
-                    rootdir = task.EvaluateBuildVar("InstallDir");
-                    break;
-                default:
-                    rootdir = task.EvaluateBuildVar("BuiltDir");
-                    break;
-                }
+            case "package":
+                rootdir = task.EvaluateBuildVar("PackageDir");
+                break;
+            case "install":
+                rootdir = task.EvaluateBuildVar("InstallDir");
+                break;
+            default:
+                rootdir = task.EvaluateBuildVar("BuiltDir");
+                break;
             }
-
-            let idir = jsmk.path.join(rootdir, config.installdir);
-            let outputs = [];
-            if(!Array.isArray(config.inputs))
-            {
-                throw new Error(task.GetName() + ".inputs must be an array");
-            }
-            for(let input of config.inputs)
-            {
-                let infile = jsmk.path.basename(input);
-                let outfile = jsmk.path.join(idir, infile);
-                if(config.installext)
-                {
-                    let pathobj = jsmk.path.parse(outfile);
-                    pathobj.ext = config.installext;
-                    pathobj.base = null;
-                    outfile = jsmk.path.format(pathobj);
-                }
-                if(config.renametarget)
-                {
-                    outfile = config.renametarget(outfile, input);
-                }
-                outputs.push(outfile);
-            }
-            if(actionStage == "package")
-            {
-                jsmk.NOTICE("copyfiles " + 
-                    config.inputs + " to " + config.outputs);
-            }
-            config.outputs = outputs;
-            config.rootdir = rootdir;
-            // let inputs and outputs remain on config
-            delete config.installdir;
-            delete config.installext;
-
-            // jsmk.NOTICE(this.m_actionStage + " to " + idir);
-            // (installdir is usually to _Root/toolset/Product/...)
         }
+        if(!config.inputspec)
+            config.inputspec = [{inputs: config.inputs, 
+                                 installdir: config.installdir}];
+
+        config.rootdir = rootdir;
+        config.inputs = [];
+        config.outputs = [];
+
+        // flatten the inputspec.
+        for(let {inputs, installdir} of config.inputspec)
+        {
+            if(inputs && installdir)
+            {
+                let idir = jsmk.path.join(rootdir, installdir);
+                if(!Array.isArray(inputs))
+                {
+                    throw new Error(task.GetName() + ".inputs must be an array");
+                }
+                for(let input of inputs)
+                {
+                    let infile = jsmk.path.basename(input);
+                    let outfile = jsmk.path.join(idir, infile);
+                    if(config.installext)
+                    {
+                        let pathobj = jsmk.path.parse(outfile);
+                        pathobj.ext = config.installext;
+                        pathobj.base = null;
+                        outfile = jsmk.path.format(pathobj);
+                    }
+                    if(config.renametarget)
+                    {
+                        outfile = config.renametarget(outfile, input);
+                    }
+                    config.inputs.push(input);
+                    config.outputs.push(outfile);
+                }
+                if(actionStage == "package")
+                {
+                    jsmk.NOTICE("copyfiles " + 
+                        config.inputs + " to " + config.outputs);
+                }
+                // jsmk.NOTICE(this.m_actionStage + " to " + idir);
+                // (installdir is usually to _Root/toolset/Product/...)
+            }
+        }
+        // n inputs and outputs live on config
+        delete config.installdir;
+        delete config.installext;
     }
 
     // GenerateWork is a generator (ie: issues yield) of Promises
