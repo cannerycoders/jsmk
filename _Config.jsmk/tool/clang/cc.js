@@ -67,8 +67,13 @@ class Clang extends ToolCli
         });
 
         // https://setapp.com/how-to/full-list-of-all-macos-versions
-        // 14:mohave 15:catalina, 11.0: bigsur, 12.0 (monterey 2021), 13.0 (ventura 2022)
-        // 15:sequoia
+        // 11.0: bigsur, 12.0 (monterey 2021), 13.0 (ventura 2022)
+        // 14:mohave 15:catalina, q5:sequoia, 26:tahoe (2025)
+        // Trickiness alert: when using homebrewopensll (eg for 
+        // openssl, fluidsynth) we appear to only be able to build 
+        // on the equivalent of our target.  Spec below causes
+        // link-time warnings.  Current solution is to build on the 
+        // min-OS-version
         this.target = target;
         let xflags = {
             darwin: [
