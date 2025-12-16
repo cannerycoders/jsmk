@@ -233,7 +233,7 @@ class CopyFiles extends Tool
             .on("data", (item) =>
             {
                 // console.log("deepCopy.data " + item.path);
-                let subpath = item.path.substr(inroot.length + 1);
+                let subpath = item.path.slice(inroot.length + 1);
                 if(ignore && ignore.test(subpath))
                 {
                     if(!quiet)
