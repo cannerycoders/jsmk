@@ -279,7 +279,7 @@ class CopyFiles extends Tool
                 {
                     if(deferredmsg)
                     {
-                        jsmk.INFO(deferredmsg);
+                        jsmk.INFO("deferred:{\n" + deferredmsg + "\n}");
                         deferredmsg = null;
                     }
                     if(item.stats.isDirectory())
