@@ -49,7 +49,7 @@ class CopyFiles extends Tool
         config.outputs = [];
 
         // flatten the inputspec.
-        for(let {inputs, installdir} of config.inputspec)
+        for(let {inputs, installdir, preservePathBelow} of config.inputspec)
         {
             if(inputs && installdir)
             {
@@ -61,7 +61,16 @@ class CopyFiles extends Tool
                 for(let input of inputs)
                 {
                     let infile = jsmk.path.basename(input);
-                    let outfile = jsmk.path.join(idir, infile);
+                    let outfile; 
+                    if(preservePathBelow)
+                    {
+                      let i = input.indexOf(preservePathBelow);
+                      if(i == -1) throw new Error(`CopyFiles error for ${preservePathBelow}`)
+                      let subpath = input.slice(i + preservePathBelow.length);
+                      outfile = jsmk.path.join(idir, subpath);
+                    }
+                    else
+                      outfile = jsmk.path.join(idir, infile);
                     if(config.installext)
                     {
                         let pathobj = jsmk.path.parse(outfile);
