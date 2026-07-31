@@ -24,7 +24,14 @@ class CopyFiles extends Tool
         let actionStage = task.GetActionStage();
         let rootdir;
         if(config.installroot)
+        {
             rootdir = task.Interpolate(config.installroot);
+            if(!jsmk.path.isAbsolute(rootdir))
+            {
+              let cwd = task.GetWorkingDir();
+              rootdir = jsmk.path.join(cwd, rootdir);
+            }
+        }
         else
         {
             switch(actionStage)
